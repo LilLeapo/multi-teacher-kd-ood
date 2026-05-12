@@ -1,6 +1,10 @@
-# Five teachers, architecture-diverse, target acc 78-82% on CIFAR-100.
+# Four teachers, architecture-diverse, target acc 78-82% on CIFAR-100.
 # All adapted for 32x32 input (3x3 stride-1 stem, no initial maxpool).
 # Trained from scratch; no pretrained download.
+#
+# EfficientNet-B0 was dropped from the pool — under the shared SGD+cosine
+# recipe it stalled around 69% (vs ~81% for the others), and bringing it up
+# would require its own training pipeline (AutoAugment, EMA, drop-path, etc.).
 extends: base.yaml
 
 teachers:
@@ -23,17 +27,3 @@ teachers:
     arch: resnext50_32x4d
     family: cnn-grouped
     cifar_stem: true
-
-  - name: efficientnet_b0
-    arch: efficientnet_b0
-    family: cnn-mobile
-    cifar_stem: true
-
-# Override train recipe if a specific teacher needs different hyperparameters.
-overrides:
-  efficientnet_b0:
-    train:
-      lr: 0.05
-      weight_decay: 1.0e-5
-      label_smoothing: 0.1
-      epochs: 250

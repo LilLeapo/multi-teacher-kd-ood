@@ -13,7 +13,7 @@ students:
 # Distillation runs use the full 5-teacher pool from teachers.yaml.
 distill:
   teacher_config: configs/teachers.yaml
-  teachers: [resnet50, densenet121, wide_resnet50_2, resnext50_32x4d, efficientnet_b0]
+  teachers: [resnet50, densenet121, wide_resnet50_2, resnext50_32x4d]
   epochs: 200
   lr: 0.1
   weight_decay: 5.0e-4

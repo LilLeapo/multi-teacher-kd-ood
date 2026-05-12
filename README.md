@@ -1,6 +1,6 @@
 # exp2 — multi-teacher KD, architecture-diverse pool
 
-CIFAR-100 ID with 5 capability-balanced, architecture-diverse CNN teachers distilled
+CIFAR-100 ID with 4 capability-balanced, architecture-diverse CNN teachers distilled
 into a heterogeneous student (ShuffleNetV2 0.5× or RepVGG-A0). OOD evaluation against
 CIFAR-10 (near), SVHN (far), Textures/DTD (far).
 
@@ -27,7 +27,7 @@ Useful toggles:
 
 | Path                              | What                                                          |
 | --------------------------------- | ------------------------------------------------------------- |
-| `configs/teachers.yaml`           | 5-teacher pool (ResNet-50, DenseNet-121, WRN-50-2, ResNeXt-50, EfficientNet-B0) |
+| `configs/teachers.yaml`           | 4-teacher pool (ResNet-50, DenseNet-121, WRN-50-2, ResNeXt-50)                  |
 | `configs/students.yaml`           | ShuffleNetV2 0.5×, RepVGG-A0; KD recipe                       |
 | `configs/control_cifar10.yaml`    | Negative control                                              |
 | `src/train_teacher.py`            | Train one teacher                                             |
