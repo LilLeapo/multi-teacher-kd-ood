@@ -18,7 +18,8 @@ INSTALL=1 bash scripts/run_all.sh
 ```
 
 Useful toggles:
-- `PARALLEL=1`     fan teachers out across visible GPUs
+- `INTRA_GPU=N`    run N teacher trainings concurrently on the same GPU (e.g. `INTRA_GPU=3` on a 5090)
+- `MULTI_GPU=1`    one teacher per visible GPU, with a per-GPU queue
 - `RUN_CONTROL=1`  append the CIFAR-10 same-arch control
 - `SKIP_DUMP=0`    also dump teacher logits for offline analysis
 

@@ -6,7 +6,10 @@
 #   INSTALL=1     pip install requirements before running
 #   SKIP_DUMP=1   skip the optional logit dump (default: skip)
 #   RUN_CONTROL=1 also run the CIFAR-10 same-arch control after the main pipeline
-#   PARALLEL=1    train teachers in parallel across visible GPUs
+#
+# Teacher-training concurrency (forwarded to scripts/01_train_teachers.sh):
+#   INTRA_GPU=N   N teachers concurrently on the same GPU (e.g. INTRA_GPU=3 on a 5090)
+#   MULTI_GPU=1   one teacher per visible GPU, per-GPU queue
 
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
 
