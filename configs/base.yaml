@@ -1,0 +1,50 @@
+# Shared defaults; override per-experiment.
+seed: 42
+data_root: ./data
+ckpt_root: ./checkpoints
+logit_root: ./outputs/logits
+result_root: ./outputs/results
+log_root: ./logs
+
+device: cuda
+num_workers: 4
+pin_memory: true
+
+id_dataset: cifar100             # cifar100 | cifar10
+num_classes: 100
+
+ood_eval:
+  - { name: cifar10,  split: test }   # near-OOD when ID=cifar100
+  - { name: svhn,     split: test }   # far-OOD
+  - { name: textures, split: test }   # far-OOD (DTD)
+
+train:
+  epochs: 200
+  batch_size: 128
+  lr: 0.1
+  momentum: 0.9
+  weight_decay: 5.0e-4
+  nesterov: true
+  scheduler: cosine             # cosine | step
+  warmup_epochs: 5
+  label_smoothing: 0.0
+  amp: true
+
+augment:
+  random_crop_padding: 4
+  random_horizontal_flip: true
+  cutout: false                 # toggle if a teacher needs a regulariser
+
+eval:
+  batch_size: 256
+
+# Multi-teacher KD
+kd:
+  alpha: 0.7                    # KD loss weight vs CE
+  temperature: 4.0
+  teacher_weighting: uniform    # uniform | accuracy | learned
+  match_space: logits           # logits | softmax
+
+ood:
+  scores: [msp, maxlogit, energy]
+  energy_temperature: 1.0

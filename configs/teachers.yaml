@@ -1,0 +1,39 @@
+# Five teachers, architecture-diverse, target acc 78-82% on CIFAR-100.
+# All adapted for 32x32 input (3x3 stride-1 stem, no initial maxpool).
+# Trained from scratch; no pretrained download.
+extends: base.yaml
+
+teachers:
+  - name: resnet50
+    arch: resnet50
+    family: cnn-residual
+    cifar_stem: true
+
+  - name: densenet121
+    arch: densenet121
+    family: cnn-dense
+    cifar_stem: true
+
+  - name: wide_resnet50_2
+    arch: wide_resnet50_2
+    family: cnn-wide
+    cifar_stem: true
+
+  - name: resnext50_32x4d
+    arch: resnext50_32x4d
+    family: cnn-grouped
+    cifar_stem: true
+
+  - name: efficientnet_b0
+    arch: efficientnet_b0
+    family: cnn-mobile
+    cifar_stem: true
+
+# Override train recipe if a specific teacher needs different hyperparameters.
+overrides:
+  efficientnet_b0:
+    train:
+      lr: 0.05
+      weight_decay: 1.0e-5
+      label_smoothing: 0.1
+      epochs: 250

@@ -1,0 +1,29 @@
+# Negative control: CIFAR-10 ID with capability-heterogeneous teachers
+# and a same-architecture student. Demonstrates N1 boundary condition.
+extends: base.yaml
+
+id_dataset: cifar10
+num_classes: 10
+
+ood_eval:
+  - { name: cifar100, split: test }   # near-OOD when ID=cifar10
+  - { name: svhn,     split: test }
+  - { name: textures, split: test }
+
+# Capability-heterogeneous: same family, different capacity.
+teachers:
+  - { name: resnet18,  arch: resnet18,  family: cnn-residual, cifar_stem: true }
+  - { name: resnet34,  arch: resnet34,  family: cnn-residual, cifar_stem: true }
+  - { name: resnet50,  arch: resnet50,  family: cnn-residual, cifar_stem: true }
+  - { name: resnet101, arch: resnet101, family: cnn-residual, cifar_stem: true }
+  - { name: resnet152, arch: resnet152, family: cnn-residual, cifar_stem: true }
+
+# Same-architecture student to expose the KD shortcut.
+students:
+  - { name: resnet18, arch: resnet18, cifar_stem: true }
+
+distill:
+  teachers: [resnet18, resnet34, resnet50, resnet101, resnet152]
+  epochs: 200
+  alpha: 0.7
+  temperature: 4.0

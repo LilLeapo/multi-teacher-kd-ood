@@ -1,0 +1,21 @@
+# Students. Heterogeneous to every teacher in the pool.
+extends: base.yaml
+
+students:
+  - name: shufflenetv2_x0_5
+    arch: shufflenetv2_x0_5
+    cifar_stem: true
+
+  - name: repvgg_a0
+    arch: repvgg_a0
+    cifar_stem: true
+
+# Distillation runs use the full 5-teacher pool from teachers.yaml.
+distill:
+  teacher_config: configs/teachers.yaml
+  teachers: [resnet50, densenet121, wide_resnet50_2, resnext50_32x4d, efficientnet_b0]
+  epochs: 200
+  lr: 0.1
+  weight_decay: 5.0e-4
+  alpha: 0.7
+  temperature: 4.0
