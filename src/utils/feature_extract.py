@@ -23,6 +23,12 @@ def _classifier_head(model: nn.Module, arch: str) -> nn.Linear:
     if arch.startswith("efficientnet"):
         cls = model.classifier
         return cls[-1] if isinstance(cls, nn.Sequential) else cls
+    if arch.startswith("convnext"):
+        # torchvision ConvNeXt: classifier = Sequential(LayerNorm2d, Flatten, Linear).
+        # Hooking on the final Linear gives us its input = flat penultimate feature
+        # (post-LayerNorm, post-Flatten), which matches how other archs are treated.
+        cls = model.classifier
+        return cls[-1] if isinstance(cls, nn.Sequential) else cls
     if arch.startswith("shufflenet"):
         return model.fc
     if arch.startswith("repvgg"):
