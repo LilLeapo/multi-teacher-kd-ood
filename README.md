@@ -18,10 +18,12 @@ INSTALL=1 bash scripts/run_all.sh
 ```
 
 Useful toggles:
-- `INTRA_GPU=N`    run N teacher trainings concurrently on the same GPU (e.g. `INTRA_GPU=3` on a 5090)
-- `MULTI_GPU=1`    one teacher per visible GPU, with a per-GPU queue
-- `RUN_CONTROL=1`  append the CIFAR-10 same-arch control
-- `SKIP_DUMP=0`    also dump teacher logits for offline analysis
+- `INTRA_GPU=N`         run N teacher trainings concurrently on the same GPU (e.g. `INTRA_GPU=3` on a 5090)
+- `MULTI_GPU=1`         one teacher per visible GPU, with a per-GPU queue
+- `RUN_CONTROL=1`       append the CIFAR-10 same-arch control
+- `SKIP_DUMP=0`         also dump teacher logits for offline analysis
+- `SKIP_ENSEMBLE_OOD=1` skip Step 6 (4-teacher ensemble OOD table)
+- `SKIP_SHAPLEY=1`      skip Step 7 (Shapley q_shap analysis)
 
 ## Layout
 
@@ -33,7 +35,9 @@ Useful toggles:
 | `src/train_teacher.py`            | Train one teacher                                             |
 | `src/distill.py`                  | Multi-teacher KD (teachers run live in eval mode)             |
 | `src/dump_logits.py`              | Optional offline logit cache                                  |
-| `src/eval_ood.py`                 | MSP / MaxLogit / Energy → AUROC / AUPR / FPR95                |
+| `src/eval_ood.py`                 | Per-model MSP / MaxLogit / Energy → AUROC / AUPR / FPR95      |
+| `src/ensemble_ood.py`             | Step 6: ensemble-logit OOD table with MSP / MaxLogit / Energy / GEN / KNN / Mahalanobis / ViM |
+| `src/shapley_q.py`                | Step 7: exact 2^M Shapley over teachers + q_shap distribution + Fate-A/B verdict |
 | `scripts/run_all.sh`              | One-click entry                                               |
 
 ## Outputs
