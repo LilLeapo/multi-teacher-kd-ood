@@ -1,0 +1,49 @@
+# Per-teacher recipe overlay for ConvNeXt-Tiny.
+#
+# Merged on top of configs/teachers.yaml ONLY when the loader is called with
+# override_name="convnext_tiny" (see src/utils/config.py). All other entry
+# points (distill.py, dump_logits.py, shapley_q.py) load the teachers config
+# without override_name, so they keep using the shared inference path.
+#
+# Target CIFAR-100 acc: 80-82% from scratch on 32x32 input.
+#
+# Rationale for departures from the shared SGD+cosine recipe:
+#   * AdamW + larger effective wd: ConvNeXt was designed for AdamW; SGD on it
+#     under-fits (~70-75% at convergence).
+#   * MixUp + CutMix + RandAugment + label_smoothing: the standard
+#     "data-augmentation-heavy" mix the ConvNeXt paper used; without it the
+#     model overfits CIFAR-100 quickly given its 28M parameters.
+#   * Stochastic depth 0.1: declared on the teacher entry's model_kwargs,
+#     read by build_model.
+#   * 300 epochs + 20-epoch warmup: AdamW needs longer warmup; total budget
+#     compensates for the smaller per-step LR.
+#   * batch_size 128 + grad_clip 1.0: safe defaults; bump batch_size on a
+#     5090 if VRAM allows.
+
+train:
+  optimizer: adamw
+  epochs: 300
+  batch_size: 128
+  lr: 1.0e-3
+  weight_decay: 0.05
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+  scheduler: cosine
+  warmup_epochs: 20
+  label_smoothing: 0.1
+  amp: true
+  grad_clip: 1.0
+
+augment:
+  random_crop_padding: 4
+  random_horizontal_flip: true
+  randaugment:
+    num_ops: 2
+    magnitude: 9
+  mixup:
+    alpha: 0.8
+    prob: 0.5
+  cutmix:
+    alpha: 1.0
+    prob: 0.5
+  cutout: false

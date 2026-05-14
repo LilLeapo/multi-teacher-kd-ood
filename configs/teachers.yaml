@@ -1,6 +1,11 @@
-# Four teachers, architecture-diverse, target acc 78-82% on CIFAR-100.
-# All adapted for 32x32 input (3x3 stride-1 stem, no initial maxpool).
+# Five teachers, architecture-diverse, target acc ~78-82% on CIFAR-100.
+# All adapted for 32x32 input (3x3 stride-1 stem, no initial maxpool/patchify).
 # Trained from scratch; no pretrained download.
+#
+# Four CNN-residual variants share the base SGD+cosine recipe from base.yaml.
+# ConvNeXt-Tiny breaks the CNN-residual monoculture (modern conv design:
+# depthwise 7x7, LayerNorm, GELU, stochastic depth) and ships its own
+# AdamW + MixUp/CutMix/RandAug recipe via the `recipe:` field below.
 #
 # EfficientNet-B0 was dropped from the pool — under the shared SGD+cosine
 # recipe it stalled around 69% (vs ~81% for the others), and bringing it up
@@ -27,3 +32,11 @@ teachers:
     arch: resnext50_32x4d
     family: cnn-grouped
     cifar_stem: true
+
+  - name: convnext_tiny
+    arch: convnext_tiny
+    family: conv-modern
+    cifar_stem: true
+    recipe: teacher_recipes/convnext_tiny.yaml
+    model_kwargs:
+      stochastic_depth_prob: 0.1

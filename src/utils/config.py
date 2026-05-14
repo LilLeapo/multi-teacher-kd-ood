@@ -21,7 +21,8 @@ def _deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any
 def load_config(path: str, override_name: str | None = None) -> Dict[str, Any]:
     """Load a YAML config, resolving `extends:` relative to the config file's dir.
 
-    If `override_name` is given, the matching subtree under `overrides:` is merged in.
+    Merge order (later wins):
+        base  →  this file  →  overrides[override_name]  →  per-teacher recipe file
     """
     with open(path, "r") as f:
         cfg = yaml.safe_load(f)
@@ -34,4 +35,20 @@ def load_config(path: str, override_name: str | None = None) -> Dict[str, Any]:
         overrides = cfg.get("overrides", {})
         if override_name in overrides:
             cfg = _deep_merge(cfg, overrides[override_name])
+        recipe = _find_recipe(cfg.get("teachers"), override_name)
+        if recipe:
+            recipe_path = recipe if os.path.isabs(recipe) else os.path.join(os.path.dirname(path), recipe)
+            with open(recipe_path, "r") as f:
+                recipe_cfg = yaml.safe_load(f) or {}
+            cfg = _deep_merge(cfg, recipe_cfg)
     return cfg
+
+
+def _find_recipe(teachers: Any, name: str) -> str | None:
+    """Return the `recipe:` path declared on the teacher entry with this name, if any."""
+    if not isinstance(teachers, list):
+        return None
+    for spec in teachers:
+        if isinstance(spec, dict) and spec.get("name") == name:
+            return spec.get("recipe")
+    return None

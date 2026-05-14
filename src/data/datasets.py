@@ -22,6 +22,15 @@ def _train_tf(cfg) -> transforms.Compose:
         ops.append(transforms.RandomCrop(32, padding=pad, padding_mode="reflect"))
     if aug.get("random_horizontal_flip", True):
         ops.append(transforms.RandomHorizontalFlip())
+    randaug = aug.get("randaugment")
+    if randaug:
+        # Accept either a bool (defaults) or a dict with num_ops/magnitude.
+        if isinstance(randaug, dict):
+            n = int(randaug.get("num_ops", 2))
+            m = int(randaug.get("magnitude", 9))
+        else:
+            n, m = 2, 9
+        ops.append(transforms.RandAugment(num_ops=n, magnitude=m))
     ops += [transforms.ToTensor(), transforms.Normalize(CIFAR_MEAN, CIFAR_STD)]
     if aug.get("cutout", False):
         ops.append(_Cutout(length=16))

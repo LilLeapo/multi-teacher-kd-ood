@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Train every teacher listed in $TEACHER_CONFIG.
 #
+# Idempotent: a teacher is skipped if its checkpoint already exists. Set
+# FORCE_RETRAIN=1 to retrain unconditionally.
+#
 # Concurrency modes (pick one — default is sequential):
 #   INTRA_GPU=N   run N teachers concurrently on the same GPU (FIFO queue;
 #                 whichever finishes first frees a slot for the next teacher)
@@ -15,7 +18,36 @@ cfg = load_config("${TEACHER_CONFIG}")
 print(" ".join(t["name"] for t in cfg["teachers"]))
 PY
 )
+id_dataset=$(python - <<PY
+from src.utils.config import load_config
+cfg = load_config("${TEACHER_CONFIG}")
+print(cfg["id_dataset"])
+PY
+)
+ckpt_root=$(python - <<PY
+from src.utils.config import load_config
+cfg = load_config("${TEACHER_CONFIG}")
+print(cfg["ckpt_root"])
+PY
+)
 log "teachers to train: $names"
+
+# Filter out already-trained teachers unless FORCE_RETRAIN=1.
+remaining=""
+for name in $names; do
+  ckpt="${ckpt_root}/${id_dataset}/teachers/${name}.pt"
+  if [[ -f "$ckpt" && "${FORCE_RETRAIN:-0}" != "1" ]]; then
+    log "skip $name (checkpoint exists at $ckpt; set FORCE_RETRAIN=1 to retrain)"
+  else
+    remaining="${remaining} ${name}"
+  fi
+done
+names="${remaining# }"
+if [[ -z "$names" ]]; then
+  log "all teachers already trained; nothing to do"
+  exit 0
+fi
+log "training (after skip filter): $names"
 
 train_one() {
   local name=$1
