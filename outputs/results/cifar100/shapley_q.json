@@ -1,0 +1,30 @@
+{
+  "teachers": [
+    "resnet50",
+    "densenet121",
+    "wide_resnet50_2",
+    "resnext50_32x4d",
+    "convnext_tiny"
+  ],
+  "id_dataset": "cifar100",
+  "M": 5,
+  "n_samples": 10000,
+  "q_shap_stats": {
+    "mean": 0.03517256677150726,
+    "median": 0.0001417994499206543,
+    "p25": 1.5497207641601562e-05,
+    "p75": 0.023398488759994507,
+    "p90": 0.12099860608577728,
+    "p95": 0.20442597568035126,
+    "frac_above_0.15": 0.0778,
+    "frac_above_0.30": 0.0232
+  },
+  "per_teacher_mean_shapley": {
+    "resnet50": 0.7947368025779724,
+    "densenet121": 0.7992771863937378,
+    "wide_resnet50_2": 0.8041898012161255,
+    "resnext50_32x4d": 0.8076693415641785,
+    "convnext_tiny": 0.8279803395271301
+  },
+  "verdict": "MIDDLE: run S3 v2 + global gate to decide."
+}
