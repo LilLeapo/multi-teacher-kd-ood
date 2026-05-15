@@ -31,8 +31,13 @@ if [[ "${SKIP_DUMP:-1}" != "1" ]]; then
   bash scripts/02_dump_logits.sh
 fi
 
-log "=== STEP 3: distill students ==="
-bash scripts/03_distill.sh
+if [[ "${USE_MATRIX:-1}" == "1" ]]; then
+  log "=== STEP 3: distill students (method × seed × student matrix) ==="
+  bash scripts/08_distill_matrix.sh
+else
+  log "=== STEP 3: distill students (legacy single-method) ==="
+  bash scripts/03_distill.sh
+fi
 
 log "=== STEP 4: OOD eval (per-model) ==="
 bash scripts/04_eval_ood.sh

@@ -113,6 +113,41 @@ def build_id_loaders(cfg) -> Tuple[DataLoader, DataLoader]:
     return train_loader, test_loader
 
 
+class IndexedDataset(Dataset):
+    """Wrap any (x, y) dataset to yield (x, y, idx) — needed for SLG / router lookup."""
+
+    def __init__(self, base: Dataset):
+        self.base = base
+
+    def __len__(self) -> int:
+        return len(self.base)
+
+    def __getitem__(self, idx: int):
+        x, y = self.base[idx]
+        return x, y, idx
+
+
+def build_id_train_loader_indexed(cfg, train_aug: bool = True) -> DataLoader:
+    """Training loader that yields (x, y, idx). idx is the dataset-order index.
+
+    Set train_aug=False for the no-aug pass used by SLG offline precomputation.
+    """
+    name = cfg["id_dataset"]
+    root = cfg["data_root"]
+    tf = _train_tf(cfg) if train_aug else _eval_tf()
+    base = _id_dataset(name, root, train=True, tf=tf)
+    ds = IndexedDataset(base)
+    return DataLoader(
+        ds,
+        batch_size=cfg["train"]["batch_size"] if train_aug else cfg["eval"]["batch_size"],
+        shuffle=train_aug,
+        num_workers=cfg["num_workers"],
+        pin_memory=cfg["pin_memory"],
+        drop_last=train_aug,
+        persistent_workers=cfg["num_workers"] > 0,
+    )
+
+
 def build_ood_loader(name: str, cfg) -> DataLoader:
     ds = _ood_dataset(name, cfg["data_root"], split="test", tf=_eval_tf())
     return DataLoader(

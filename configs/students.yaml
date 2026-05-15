@@ -19,3 +19,37 @@ distill:
   weight_decay: 5.0e-4
   alpha: 0.7
   temperature: 4.0
+
+# Default teacher weighting; can be overridden on the CLI with --method.
+kd:
+  teacher_weighting: uniform
+
+# Method-specific hyperparameters. distill.py reads s_cfg["method"][<method>] when
+# the method is one of {learned_global, csr_kd, srr}. The other methods (uniform,
+# accuracy, slg) only need the global KD recipe above.
+method:
+  learned_global:
+    extra_lr: 1.0e-2
+    entropy_bonus_weight: 0.005
+
+  csr_kd:
+    extra_lr: 1.0e-3
+    alpha_start: 0.20
+    alpha_end: 0.72
+    alpha_ramp_start_frac: 0.20
+    alpha_ramp_end_frac: 0.85
+    sup_weight_start: 1.00
+    sup_weight_end: 0.45
+    sup_decay_start_frac: 0.20
+    sup_decay_end_frac: 0.85
+    confidence_min: 0.25
+    entropy_bonus_weight: 0.005
+
+  srr:
+    extra_lr: 1.0e-3
+    r_min: 0.05
+    r_max: 0.40
+    r_prior: 0.20
+    r_prior_weight: 0.20
+    anchor_weight: 0.50
+    anchor_conf_threshold: 0.80
