@@ -1,0 +1,43 @@
+# Homogeneous control ensemble: 5 × ResNet-50 with the *same* recipe as the
+# heterogeneous pool's resnet50 teacher, only the seed varies.
+#
+# Used by experiment 2 to test the causal claim that *architecture diversity*
+# (not just ensemble averaging) is what blows up the Jensen gap on OOD data.
+# Compared head-to-head against the heterogeneous pool (configs/teachers.yaml),
+# both ensembles are size M=5 and trained with the same SGD+cosine 200-epoch
+# recipe from base.yaml.
+#
+# Seeds 42 / 123 / 3407 match the student multi-seed table; 7 and 2024 are
+# additional seeds for the M=5 ensemble.
+extends: base.yaml
+
+teachers:
+  - name: resnet50_seed42
+    arch: resnet50
+    family: cnn-residual
+    cifar_stem: true
+    seed: 42
+
+  - name: resnet50_seed123
+    arch: resnet50
+    family: cnn-residual
+    cifar_stem: true
+    seed: 123
+
+  - name: resnet50_seed3407
+    arch: resnet50
+    family: cnn-residual
+    cifar_stem: true
+    seed: 3407
+
+  - name: resnet50_seed7
+    arch: resnet50
+    family: cnn-residual
+    cifar_stem: true
+    seed: 7
+
+  - name: resnet50_seed2024
+    arch: resnet50
+    family: cnn-residual
+    cifar_stem: true
+    seed: 2024

@@ -18,7 +18,7 @@ import torch
 from .data import build_id_loaders
 from .models import build_model
 from .utils import load_config
-from .utils.train_loop import train_supervised
+from .utils.train_loop import seed_everything, train_supervised
 
 
 def _truthy_env(name: str) -> bool:
@@ -29,11 +29,21 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--config", required=True)
     p.add_argument("--teacher", required=True, help="teacher `name` from the config")
+    p.add_argument("--seed", type=int, default=None,
+                   help="override seed (otherwise uses spec.seed or cfg.seed)")
     p.add_argument("--force", action="store_true", help="retrain even if checkpoint exists")
     args = p.parse_args()
 
     cfg = load_config(args.config, override_name=args.teacher)
     spec = next(t for t in cfg["teachers"] if t["name"] == args.teacher)
+    # Resolve seed: CLI > per-teacher spec > config default. Seed *before* model
+    # construction so weight init is actually distinct across seeds — train_supervised
+    # only re-seeds inside its body, by which point model.__init__ has already drawn.
+    if args.seed is not None:
+        cfg["seed"] = args.seed
+    elif "seed" in spec:
+        cfg["seed"] = spec["seed"]
+    seed_everything(cfg.get("seed", 42))
     ckpt_path = os.path.join(cfg["ckpt_root"], cfg["id_dataset"], "teachers", f"{spec['name']}.pt")
 
     force = args.force or _truthy_env("FORCE_RETRAIN")
